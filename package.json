@@ -1,0 +1,12 @@
+{
+  "name": "keyzone-erp",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Modular Multi-tenant ERP System",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
+
