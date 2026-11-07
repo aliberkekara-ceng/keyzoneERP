@@ -8,6 +8,7 @@ import { IDomainEvent } from '../../../../shared/kernel/domain-event.js';
  */
 export class WarehouseDeactivated implements IDomainEvent {
   public readonly eventName = 'WarehouseDeactivated';
+  public readonly eventVersion = 1;
   public readonly occurredAt: Date;
 
   constructor(

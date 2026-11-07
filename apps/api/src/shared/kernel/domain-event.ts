@@ -8,5 +8,6 @@ export interface IDomainEvent {
   readonly eventName: string;
   readonly occurredAt: Date;
   readonly aggregateId: string;
+  readonly eventVersion?: number;
 }
 

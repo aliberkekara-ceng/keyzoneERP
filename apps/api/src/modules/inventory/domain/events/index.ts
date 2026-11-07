@@ -1,3 +1,9 @@
 export * from './warehouse-created.event.js';
 export * from './warehouse-deactivated.event.js';
-
+export * from './stock-received.event.js';
+export * from './stock-issued.event.js';
+export * from './stock-transferred.event.js';
+export * from './stock-adjusted.event.js';
+export * from './stock-reserved.event.js';
+export * from './stock-reservation-released.event.js';
+export * from './stock-reservation-consumed.event.js';
