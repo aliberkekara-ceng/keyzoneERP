@@ -13,3 +13,4 @@ export * from './invalid-argument.error.js';
 export * from './stock-balance-mismatch.error.js';
 export * from './invalid-reservation-status-transition.error.js';
 export * from './reservation-expired.error.js';
+export * from './warehouse-code-already-exists.error.js';
