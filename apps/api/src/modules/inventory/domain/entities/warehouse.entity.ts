@@ -19,6 +19,7 @@ export interface CreateWarehouseProps {
   code: WarehouseCode;
   name: string;
   allowNegativeStock?: boolean;
+  createdAt?: Date;
 }
 
 export interface ReconstituteWarehouseProps {
@@ -119,7 +120,7 @@ export class Warehouse extends AggregateRoot<string> {
     }
 
     const id = props.id ?? crypto.randomUUID();
-    const now = new Date();
+    const now = props.createdAt ?? new Date();
     const normalizedName = props.name.trim();
     const allowNegativeStock = props.allowNegativeStock ?? false;
 
