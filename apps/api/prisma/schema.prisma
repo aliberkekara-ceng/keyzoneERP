@@ -1,5 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema — Keyzone ERP
+// Modül şemaları multiSchema ile izole edilir.
+// Prisma tipleri YALNIZCA infrastructure katmanında kullanılır; domain ve application'a sızmaz (AGENTS.md §2.4).
 
 generator client {
   provider = "prisma-client-js"
@@ -7,6 +8,89 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  schemas  = ["public", "inventory"]
 }
 
+// ============================================================================
+// INVENTORY SCHEMA (Stok Yönetimi)
+// Başka modül tablolarına yabancı anahtar (FK) kurulmaz; tenant_id ve product_id opak referanstır.
+// Miktarlar NUMERIC(19,4) olarak saklanır.
+// ============================================================================
+
+model WarehouseRecord {
+  id                 String   @id @default(uuid()) @map("id")
+  tenantId           String   @map("tenant_id")
+  code               String   @map("code") @db.VarChar(20)
+  name               String   @map("name") @db.VarChar(255)
+  isActive           Boolean  @default(true) @map("is_active")
+  allowNegativeStock Boolean  @default(false) @map("allow_negative_stock")
+  version            Int      @default(1) @map("version")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([tenantId, code], map: "uq_warehouses_tenant_code")
+  @@index([tenantId], map: "idx_warehouses_tenant")
+  @@map("warehouses")
+  @@schema("inventory")
+}
+
+model StockMovementRecord {
+  id                 String   @id @default(uuid()) @map("id")
+  tenantId           String   @map("tenant_id")
+  type               String   @map("type") @db.VarChar(30)
+  warehouseId        String   @map("warehouse_id")
+  productId          String   @map("product_id")
+  quantity           Decimal  @map("quantity") @db.Decimal(19, 4)
+  unitCode           String   @map("unit_code") @db.VarChar(20)
+  occurredAt         DateTime @map("occurred_at") @db.Timestamptz(6)
+  referenceType      String?  @map("reference_type") @db.VarChar(50)
+  referenceId        String?  @map("reference_id")
+  reversesMovementId String?  @map("reverses_movement_id")
+  createdBy          String   @map("created_by")
+  note               String?  @map("note")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([tenantId, reversesMovementId], map: "uq_stock_movements_reversal")
+  @@index([tenantId, warehouseId, productId, occurredAt(sort: Desc)], map: "idx_stock_movements_lookup")
+  @@map("stock_movements")
+  @@schema("inventory")
+}
+
+model StockBalanceRecord {
+  tenantId    String   @map("tenant_id")
+  warehouseId String   @map("warehouse_id")
+  productId   String   @map("product_id")
+  unitCode    String   @map("unit_code") @db.VarChar(20)
+  onHand      Decimal  @default(0) @map("on_hand") @db.Decimal(19, 4)
+  reserved    Decimal  @default(0) @map("reserved") @db.Decimal(19, 4)
+  version     Int      @default(1) @map("version")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([tenantId, warehouseId, productId], map: "pk_stock_balances")
+  @@index([tenantId, warehouseId], map: "idx_stock_balances_warehouse")
+  @@map("stock_balances")
+  @@schema("inventory")
+}
+
+model ReservationRecord {
+  id                 String    @id @default(uuid()) @map("id")
+  tenantId           String    @map("tenant_id")
+  warehouseId        String    @map("warehouse_id")
+  productId          String    @map("product_id")
+  quantity           Decimal   @map("quantity") @db.Decimal(19, 4)
+  unitCode           String    @map("unit_code") @db.VarChar(20)
+  referenceType      String    @map("reference_type") @db.VarChar(50)
+  referenceId        String    @map("reference_id")
+  status             String    @map("status") @db.VarChar(20)
+  consumedMovementId String?   @map("consumed_movement_id")
+  expiresAt          DateTime? @map("expires_at") @db.Timestamptz(6)
+  version            Int       @default(1) @map("version")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([tenantId, referenceType, referenceId], map: "idx_reservations_reference")
+  @@index([tenantId, warehouseId, productId, status], map: "idx_reservations_active_lookup")
+  @@map("reservations")
+  @@schema("inventory")
+}
