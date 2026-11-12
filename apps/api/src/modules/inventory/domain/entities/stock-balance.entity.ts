@@ -195,7 +195,6 @@ export class StockBalance {
     // 2. Giriş Hareketi (IN)
     if (movement.direction === 'IN') {
       this._onHand = policy.calculateNewOnHand(this._onHand, amount, 'IN');
-      this._version++;
       return Result.ok(undefined);
     }
 
@@ -226,7 +225,6 @@ export class StockBalance {
     }
 
     this._onHand = newOnHand;
-    this._version++;
     return Result.ok(undefined);
   }
 
@@ -254,7 +252,6 @@ export class StockBalance {
     }
 
     this._reserved = this._reserved.plus(qty.amount);
-    this._version++;
     return Result.ok(undefined);
   }
 
@@ -277,7 +274,6 @@ export class StockBalance {
     }
 
     this._reserved = this._reserved.minus(qty.amount);
-    this._version++;
     return Result.ok(undefined);
   }
 }

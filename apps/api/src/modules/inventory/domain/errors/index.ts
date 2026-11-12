@@ -15,3 +15,5 @@ export * from './invalid-reservation-status-transition.error.js';
 export * from './reservation-expired.error.js';
 export * from './warehouse-code-already-exists.error.js';
 export * from './insufficient-permission.error.js';
+export * from './optimistic-lock.error.js';
+
